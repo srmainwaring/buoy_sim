@@ -23,7 +23,7 @@
       <direction>-0.5 0.1 -0.9</direction>
     </light>
 
-    <model name="water_plane">
+    <!-- <model name="water_plane">
       <static>true</static>
       <link name="link">
         <visual name="water_plane">
@@ -40,7 +40,12 @@
           </material>
         </visual>
       </link>
-    </model>
+    </model> -->
+
+    <include>
+      <pose>0 0 0 0 0 0</pose>
+      <uri>model://waves</uri>
+    </include>
 
     <model name="MBARI_WEC_ROS">
       <pose relative_to="world">0 0 -2 0 0 0</pose>
@@ -48,6 +53,12 @@
       <include merge="true">
         <uri>package://buoy_description/models/mbari_wec_ros</uri>
       </include>
+
+      <plugin
+        filename="gz-waves1-hydrodynamics-system"
+        name="gz::sim::systems::Hydrodynamics">
+      </plugin>
+
     </model>
 
   </world>

@@ -2,15 +2,15 @@
 <sdf version="1.8">
   <world name="playground">
     <physics name="1ms" type="ignored">
-      <real_time_factor>0</real_time_factor>
-      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <max_step_size>0.01</max_step_size>
       <!-- bullet + pgs seem to work ok for the tether -->
-      <dart>
+      <!-- <dart>
         <collision_detector>bullet</collision_detector>
         <solver>
           <solver_type>pgs</solver_type>
         </solver>
-      </dart>
+      </dart> -->
     </physics>
 
     <gui fullscreen="0">
@@ -174,6 +174,7 @@
         </gz-gui>
       </plugin>
     </gui>
+
     <light name="sun" type="directional">
       <cast_shadows>true</cast_shadows>
       <pose>0 0 10 0 0 0</pose>
@@ -188,7 +189,13 @@
       <direction>-0.5 0.1 -0.9</direction>
     </light>
 
-    <model name="water_plane">
+    <scene>
+      <ambient>1.0 1.0 1.0</ambient>
+      <background>0.8 0.8 0.8</background>
+      <sky></sky>
+    </scene>
+
+    <!-- <model name="water_plane">
       <static>true</static>
       <link name="link">
         <visual name="water_plane">
@@ -205,16 +212,36 @@
           </material>
         </visual>
       </link>
-    </model>
+    </model> -->
+
+    <include>
+      <pose>0 0 0 0 0 0</pose>
+      <uri>model://waves</uri>
+    </include>
 
     <model name="MBARI_WEC">
       <self_collide>true</self_collide>
       <pose>0 0 -2 0.01 0 0</pose>
       <include merge="true">
-        <uri>package://buoy_description/models/mbari_wec</uri>
+        <uri>package://buoy_description/models/mbari_wec_base</uri>
       </include>
 
       <plugin
+        filename="gz-waves1-hydrodynamics-system"
+        name="gz::sim::systems::Hydrodynamics">
+
+        <!-- enable forces on these links -->
+        <enable>MBARI_WEC::Buoy</enable>
+
+        <hydrodynamics>
+            <damping_on>1</damping_on>
+            <viscous_drag_on>1</viscous_drag_on>
+            <pressure_drag_on>1</pressure_drag_on>
+        </hydrodynamics>
+
+      </plugin>
+
+      <!-- <plugin
         filename="gz-sim-joint-position-controller-system"
         name="gz::sim::systems::JointPositionController">
         <joint_name>HydraulicRam</joint_name>
@@ -248,6 +275,7 @@
         <odom_frame>MBARI_WEC/odom</odom_frame>
         <robot_base_frame>MBARI_WEC</robot_base_frame>
       </plugin>
+      -->
 
     </model>
   </world>
