@@ -44,6 +44,7 @@ public:
     Eigen::VectorXd BuoyancyForce(Eigen::VectorXd x);
     Eigen::VectorXd RadiationForce(Eigen::VectorXd last_xddot);
     Eigen::VectorXd ExcitingForce();
+    Eigen::VectorXd ExcitingForce(double eta, double beta);
 
     void WaveExcitingForceComponents(double *XiRe, double *XiIm, double omega, int j);
 
