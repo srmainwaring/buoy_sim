@@ -238,7 +238,6 @@
             <viscous_drag_on>1</viscous_drag_on>
             <pressure_drag_on>1</pressure_drag_on>
         </hydrodynamics>
-
       </plugin>
 
       <!-- <plugin

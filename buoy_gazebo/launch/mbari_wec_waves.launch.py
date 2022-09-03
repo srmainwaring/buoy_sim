@@ -47,7 +47,8 @@ def generate_launch_description():
         ),
         launch_arguments={
             "gz_args": "-v4 -s -r "
-            + os.path.join(pkg_buoy_gazebo, "worlds", "buoy_playground.sdf")
+            # + os.path.join(pkg_buoy_gazebo, "worlds", "buoy_playground.sdf")
+            + os.path.join(pkg_buoy_gazebo, "worlds", "mbari_wec.sdf")
         }.items(),
     )
 
