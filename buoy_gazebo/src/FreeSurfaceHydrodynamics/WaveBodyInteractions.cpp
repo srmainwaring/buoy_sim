@@ -14,29 +14,30 @@
 // limitations under the License.
 
 #include "FS_Hydrodynamics.hpp"
+
 #include "LinearIncidentWave.hpp"
 #include "WaveBodyInteractions.hpp"
-#include "ignition/gazebo/Link.hh"
-#include "ignition/gazebo/components/AngularAcceleration.hh"
-#include "ignition/gazebo/components/LinearAcceleration.hh"
-#include "ignition/gazebo/components/LinearVelocity.hh"
-#include "ignition/gazebo/components/Pose.hh"
-#include "ignition/gazebo/components/World.hh"
-#include <ignition/common/Console.hh>
-#include <ignition/common/Profiler.hh>
-#include <ignition/gazebo/Model.hh>
-#include <ignition/gazebo/Types.hh>
-#include <ignition/gazebo/Util.hh>
-#include <ignition/gazebo/components/JointForceCmd.hh>
-#include <ignition/gazebo/components/JointPosition.hh>
-#include <ignition/gazebo/components/JointVelocity.hh>
-#include <ignition/gazebo/components/JointVelocityCmd.hh>
-#include <ignition/gazebo/components/Name.hh>
-#include <ignition/math/PID.hh>
-#include <ignition/msgs.hh>
-#include <ignition/msgs/double.pb.h>
-#include <ignition/plugin/Register.hh>
-#include <ignition/transport/Node.hh>
+#include <gz/sim/Link.hh>
+#include <gz/sim/components/AngularAcceleration.hh>
+#include <gz/sim/components/LinearAcceleration.hh>
+#include <gz/sim/components/LinearVelocity.hh>
+#include <gz/sim/components/Pose.hh>
+#include <gz/sim/components/World.hh>
+#include <gz/common/Console.hh>
+#include <gz/common/Profiler.hh>
+#include <gz/sim/Model.hh>
+#include <gz/sim/Types.hh>
+#include <gz/sim/Util.hh>
+#include <gz/sim/components/JointForceCmd.hh>
+#include <gz/sim/components/JointPosition.hh>
+#include <gz/sim/components/JointVelocity.hh>
+#include <gz/sim/components/JointVelocityCmd.hh>
+#include <gz/sim/components/Name.hh>
+#include <gz/math/PID.hh>
+#include <gz/msgs.hh>
+#include <gz/msgs/double.pb.h>
+#include <gz/plugin/Register.hh>
+#include <gz/transport/Node.hh>
 #include <stdio.h>
 
 #include <cmath>
@@ -46,8 +47,8 @@
 #include <vector>
 
 using namespace Eigen;
-using namespace ignition;
-using namespace gazebo;
+using namespace gz;
+using namespace sim;
 using namespace systems;
 
 namespace buoy_gazebo {
@@ -59,10 +60,10 @@ public:
                        // of un-assigned referenced occurs
 
   /// \brief Model interface
-  ignition::gazebo::Model model{ignition::gazebo::kNullEntity};
+  gz::sim::Model model{gz::sim::kNullEntity};
 
   /// \brief Link entity
-  ignition::gazebo::Entity linkEntity;
+  gz::sim::Entity linkEntity;
 
   /// \brief Incident wave implementation
   LinearIncidentWave Inc;
@@ -74,17 +75,17 @@ public:
   FS_HydroDynamics FloatingBody;
 
   /// \brief Location of Waterplane in Link Frame
-  ignition::math::Vector3d WaterplaneOrigin;
+  gz::math::Vector3d WaterplaneOrigin;
 
   /// \brief Pose of Waterplane (CS p) in Link Frame (CS b)
-  ignition::math::Pose3<double> b_Pose_p;
+  gz::math::Pose3<double> b_Pose_p;
 
-  /// \brief Ignition communication node.
-  ignition::transport::Node node;
+  /// \brief gz communication node.
+  gz::transport::Node node;
 
   /// \brief Callback for User Commanded Current subscription
   /// \param[in] _msg Current
-  void OnUserCmdCurr(const ignition::msgs::Double &_msg);
+  void OnUserCmdCurr(const gz::msgs::Double &_msg);
 };
 
 //////////////////////////////////////////////////
@@ -99,14 +100,14 @@ double SdfParamDouble(const std::shared_ptr<const sdf::Element> &_sdf,
 
 //////////////////////////////////////////////////
 void WaveBodyInteractions::Configure(
-    const ignition::gazebo::Entity &_entity,
+    const gz::sim::Entity &_entity,
     const std::shared_ptr<const sdf::Element> &_sdf,
-    ignition::gazebo::EntityComponentManager &_ecm,
-    ignition::gazebo::EventManager & /*_eventMgr*/) {
+    gz::sim::EntityComponentManager &_ecm,
+    gz::sim::EventManager & /*_eventMgr*/) {
   std::cout << "In Configure " << std::endl;
-  this->dataPtr->model = ignition::gazebo::Model(_entity);
+  this->dataPtr->model = gz::sim::Model(_entity);
   if (!this->dataPtr->model.Valid(_ecm)) {
-    ignerr
+    gzerr
         << "WaveBodyInteractions plugin should be attached to a model entity. "
         << "Failed to initialize." << std::endl;
     return;
@@ -114,7 +115,7 @@ void WaveBodyInteractions::Configure(
 
   // Get params from SDF.
   if (!_sdf->HasElement("LinkName")) {
-    ignerr << "You musk specify a <LinkName> for the wavebodyinteraction "
+    gzerr << "You musk specify a <LinkName> for the wavebodyinteraction "
               "plugin to act upon"
            << "Failed to initialize." << std::endl;
     return;
@@ -124,7 +125,7 @@ void WaveBodyInteractions::Configure(
 
   this->dataPtr->linkEntity = this->dataPtr->model.LinkByName(_ecm, linkName);
   if (!_ecm.HasEntity(this->dataPtr->linkEntity)) {
-    ignerr << "Link name" << linkName << "does not exist";
+    gzerr << "Link name" << linkName << "does not exist";
     return;
   }
 
@@ -133,6 +134,8 @@ void WaveBodyInteractions::Configure(
   this->dataPtr->Inc.SetToPiersonMoskowitzSpectrum(2*A, 0);
   //this->dataPtr->Inc.SetToMonoChromatic(2 * A, T, 0);
 
+  /// \todo(srmainwaring) set up parameters for locating these files
+  /// \todo(srmainwaring) ask Andy Hamilton for example data to run...
   std::string HydrodynamicsBaseFilename =
       "/home/hamilton/buoy_ws/src/buoy_sim/buoy_gazebo/src/"
       "FreeSurfaceHydrodynamics/HydrodynamicCoeffs/BuoyA5";
@@ -140,7 +143,7 @@ void WaveBodyInteractions::Configure(
   this->dataPtr->FloatingBody.ReadWAMITData_TD(HydrodynamicsBaseFilename);
   this->dataPtr->FloatingBody.SetTimestepSize(.001); // TODO:  Need to get timestep size from ecm.
 
-  ignition::gazebo::Link baseLink(this->dataPtr->linkEntity);
+  gz::sim::Link baseLink(this->dataPtr->linkEntity);
 
   baseLink.EnableAccelerationChecks(
       _ecm,
@@ -167,14 +170,14 @@ void WaveBodyInteractions::Configure(
 
 
 #if 1
- ignition::math::Pose3<double> w_Pose_b(0,0,-2.45,0,0.1,0);
- ignition::math::Pose3<double> b_Pose_p(0,0,2.45,0,0,0);
+ gz::math::Pose3<double> w_Pose_b(0,0,-2.45,0,0.1,0);
+ gz::math::Pose3<double> b_Pose_p(0,0,2.45,0,0,0);
  auto w_Pose_p = w_Pose_b*b_Pose_p;
  std::cout << "POSETEST w_Pose_b = " << w_Pose_b << std::endl;
  std::cout << "POSETEST b_Pose_p = " << b_Pose_p << std::endl;
  std::cout << "POSETEST w_Pose_p = " << w_Pose_p << std::endl;
  //std::cout << "POESTEST w_Pose_p components = " << w_Pose_p.Position().
- ignition::math::Vector3<double> p_X(0,0,0);
+ gz::math::Vector3<double> p_X(0,0,0);
  std::cout << "POSETEST p_X  = " << p_X << std::endl;
  std::cout << "POSETEST b_X  = " << b_Pose_p.CoordPositionAdd(p_X) << std::endl;
  std::cout << "POSETEST w_X  = " << w_Pose_p.CoordPositionAdd(p_X) << std::endl;
@@ -189,10 +192,10 @@ bool AreSame(double a, double b)
 }
 //////////////////////////////////////////////////
 void WaveBodyInteractions::PreUpdate(
-    const ignition::gazebo::UpdateInfo &_info,
-    ignition::gazebo::EntityComponentManager &_ecm) {
+    const gz::sim::UpdateInfo &_info,
+    gz::sim::EntityComponentManager &_ecm) {
 
-  IGN_PROFILE("#WaveBodyInteractions::PreUpdate");
+  GZ_PROFILE("#WaveBodyInteractions::PreUpdate");
   // Nothing left to do if paused.
   if (_info.paused) {
     return;
@@ -210,24 +213,24 @@ std::cout <<" DT = " << dataPtr->FloatingBody.GetTimestepSize() << std::endl;
 
   // \TODO(anyone): Support rewind
   if (_info.dt < std::chrono::steady_clock::duration::zero()) {
-    ignwarn
+    gzwarn
         << "Detected jump back in time ["
         << std::chrono::duration_cast<std::chrono::seconds>(_info.dt).count()
         << "s]. System may not work properly." << std::endl;
   }
 
-  ignition::gazebo::Link baseLink(this->dataPtr->linkEntity);
+  gz::sim::Link baseLink(this->dataPtr->linkEntity);
   auto w_xddot = baseLink.WorldLinearAcceleration(_ecm);
   auto w_omegadot = baseLink.WorldAngularAcceleration(_ecm);
 
-  auto w_Pose_b = ignition::gazebo::worldPose(this->dataPtr->linkEntity, _ecm);
+  auto w_Pose_b = gz::sim::worldPose(this->dataPtr->linkEntity, _ecm);
   auto w_Pose_p = w_Pose_b*this->dataPtr->b_Pose_p;
   std::cout << "w_Pose_b = " << w_Pose_b << std::endl;
   std::cout << "w_Pose_p = " << w_Pose_p << std::endl;
 
 
-  ignition::math::Vector3<double> p_xddot = w_Pose_p.Rot().Inverse() * *w_xddot;
-  ignition::math::Vector3<double> p_omegadot = w_Pose_p.Rot().Inverse() * *w_omegadot;
+  gz::math::Vector3<double> p_xddot = w_Pose_p.Rot().Inverse() * *w_xddot;
+  gz::math::Vector3<double> p_omegadot = w_Pose_p.Rot().Inverse() * *w_omegadot;
 
 std::cout << "w_omegadot = " << w_omegadot.value() << std::endl;
 std::cout << "p_omegadot = " << p_omegadot << std::endl;
@@ -241,8 +244,8 @@ std::cout << "p_omegadot = " << p_omegadot << std::endl;
 
 
 //Compute Buoyancy Force
-  ignition::math::Vector3d w_FBp(BuoyancyForce(0), BuoyancyForce(1),BuoyancyForce(2)); // Needs to be adjusted for yaw only
-  ignition::math::Vector3d w_MBp(
+  gz::math::Vector3d w_FBp(BuoyancyForce(0), BuoyancyForce(1),BuoyancyForce(2)); // Needs to be adjusted for yaw only
+  gz::math::Vector3d w_MBp(
       cos(x(5)) * BuoyancyForce(3) - sin(x(5)) * BuoyancyForce(4),
       sin(x(5)) * BuoyancyForce(3) + cos(x(5)) * BuoyancyForce(4),
       BuoyancyForce(5)); // Needs to be adjusted for yaw only
@@ -256,8 +259,8 @@ std::cout << "Buoyancy: applied moment = " << w_MBp << std::endl;
   Eigen::VectorXd MemForce(6);
   MemForce = -this->dataPtr->FloatingBody.RadiationForce(xddot); //Note negative sign, FS_Hydrodynamics returns force required to move body in prescirbed way, force of water on body is opposite.
   std::cout << " MemForce = " << MemForce.transpose() << std::endl;
-  ignition::math::Vector3d w_FRp(MemForce(0), MemForce(1), MemForce(2)); // Needs to be adjusted for yaw only
-  ignition::math::Vector3d w_MRp(
+  gz::math::Vector3d w_FRp(MemForce(0), MemForce(1), MemForce(2)); // Needs to be adjusted for yaw only
+  gz::math::Vector3d w_MRp(
       1*(cos(x(5)) * MemForce(3) - sin(x(5)) * MemForce(4)),
       1*(sin(x(5)) * MemForce(3) + cos(x(5)) * MemForce(4)),
       MemForce(5)); // Needs to be adjusted for yaw only
@@ -267,8 +270,8 @@ std::cout << "Radiation: applied moment = " << w_MRp << std::endl;
   Eigen::VectorXd ExtForce(6);
   ExtForce = this->dataPtr->FloatingBody.ExcitingForce();
    std::cout << "Exciting Force = " << ExtForce.transpose() << std::endl;
-  ignition::math::Vector3d w_FEp(ExtForce(0), ExtForce(1), ExtForce(2)); // Needs to be adjusted for yaw only
-  ignition::math::Vector3d w_MEp(
+  gz::math::Vector3d w_FEp(ExtForce(0), ExtForce(1), ExtForce(2)); // Needs to be adjusted for yaw only
+  gz::math::Vector3d w_MEp(
       1*(cos(x(5)) * ExtForce(3) - sin(x(5)) * ExtForce(4)),
       1*(sin(x(5)) * ExtForce(3) + cos(x(5)) * ExtForce(4)),
       ExtForce(5)); // Needs to be adjusted for yaw only
@@ -290,14 +293,14 @@ std::cout << "ABCD " << SimTime << "  " <<w_MBp[0] << "  " <<  w_MRp[0] << std::
   std::cout << "Buoyancy Moment At Origin= " <<
   >BuoyancyMomentAtLinkOrigin.transpose() << std::endl << std::endl;
 
-  ignition::math::Vector3d
+  gz::math::Vector3d
   AppliedForce(BuoyancyForce(0),BuoyancyForce(1),BuoyancyForce(2));
-  ignition::math::Vector3d
+  gz::math::Vector3d
   AppliedMoment(BuoyancyMomentAtLinkOrigin(0),BuoyancyMomentAtLinkOrigin(1),BuoyancyMomentAtLinkOrigin(2));
   baseLink.AddWorldWrench( _ecm, AppliedForce, AppliedMoment);
 */
   /*
-    ignition::math::Vector3d
+    gz::math::Vector3d
       totalForce(ForceAtWaterplaneOrigin(0),ForceAtWaterplaneOrigin(1),ForceAtWaterplaneOrigin(2));
       std::cout << "Total Force = "  << totalForce << std::endl;
 
@@ -305,7 +308,7 @@ std::cout << "ABCD " << SimTime << "  " <<w_MBp[0] << "  " <<  w_MRp[0] << std::
         MomentAtLinkOriginDueToForceAtWaterplaneOrigin =
   this->dataPtr->WaterplaneOrigin.cross(ForceAtWaterplaneOrigin);
 
-    ignition::math::Vector3d
+    gz::math::Vector3d
   //    totalTorque(0,0,0);
   //    totalTorque(BuoyancyForce(3) +
   MomentAtLinkOriginDueToForceAtWaterplaneOrigin(0)-MemForce(3),
@@ -328,9 +331,9 @@ std::cout << "ABCD " << SimTime << "  " <<w_MBp[0] << "  " <<  w_MRp[0] << std::
 
 //////////////////////////////////////////////////
 void WaveBodyInteractions::Update(
-    const ignition::gazebo::UpdateInfo &_info,
-    ignition::gazebo::EntityComponentManager &_ecm) {
-  IGN_PROFILE("#WaveBodyInteractions::Update");
+    const gz::sim::UpdateInfo &_info,
+    gz::sim::EntityComponentManager &_ecm) {
+  GZ_PROFILE("#WaveBodyInteractions::Update");
   // Nothing left to do if paused.
   if (_info.paused) {
     return;
@@ -341,9 +344,9 @@ void WaveBodyInteractions::Update(
 
 //////////////////////////////////////////////////
 void WaveBodyInteractions::PostUpdate(
-    const ignition::gazebo::UpdateInfo &_info,
-    const ignition::gazebo::EntityComponentManager &_ecm) {
-  IGN_PROFILE("#WaveBodyInteractions::PostUpdate");
+    const gz::sim::UpdateInfo &_info,
+    const gz::sim::EntityComponentManager &_ecm) {
+  GZ_PROFILE("#WaveBodyInteractions::PostUpdate");
   // Nothing left to do if paused.
   if (_info.paused) {
     return;
@@ -354,26 +357,28 @@ void WaveBodyInteractions::PostUpdate(
 
 //////////////////////////////////////////////////
 void WaveBodyInteractionsPrivate::OnUserCmdCurr(
-    const ignition::msgs::Double &_msg) {
+    const gz::msgs::Double &_msg) {
   std::cout << "In OnUserCmdCurr" << std::endl;
 }
 } // namespace buoy_gazebo
 
-IGNITION_ADD_PLUGIN(buoy_gazebo::WaveBodyInteractions, ignition::gazebo::System,
-                    buoy_gazebo::WaveBodyInteractions::ISystemConfigure,
-                    buoy_gazebo::WaveBodyInteractions::ISystemPreUpdate,
-                    buoy_gazebo::WaveBodyInteractions::ISystemUpdate,
-                    buoy_gazebo::WaveBodyInteractions::ISystemPostUpdate);
+GZ_ADD_PLUGIN(buoy_gazebo::WaveBodyInteractions,
+    gz::sim::System,
+    buoy_gazebo::WaveBodyInteractions::ISystemConfigure,
+    buoy_gazebo::WaveBodyInteractions::ISystemPreUpdate,
+    buoy_gazebo::WaveBodyInteractions::ISystemUpdate,
+    buoy_gazebo::WaveBodyInteractions::ISystemPostUpdate);
 
 /*
-  IGNITION_ADD_PLUGIN(
+  GZ_ADD_PLUGIN(
       WaveBodyInteractions,
-      ignition::gazebo::System,
+      gz::sim::System,
       WaveBodyInteractions::ISystemConfigure,
       WaveBodyInteractions::ISystemPreUpdate,
       WaveBodyInteractions::ISystemUpdate,
       WaveBodyInteractions::ISystemPostUpdate);
 
-  IGNITION_ADD_PLUGIN_ALIAS(WaveBodyInteractions,
-                            "ignition::gazebo::systems::WaveBodyInteractions")
+  GZ_ADD_PLUGIN_ALIAS(WaveBodyInteractions,
+      "gz::sim::systems::WaveBodyInteractions")
 */
+
