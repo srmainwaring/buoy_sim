@@ -28,8 +28,8 @@
       <background>0.8 0.8 0.8</background>
       <sky></sky>
     </scene>
-
-    <!-- <model name="water_plane">
+    
+    <!-- model name="water_plane">
       <static>true</static>
       <link name="link">
         <visual name="water_plane">
@@ -63,10 +63,7 @@
       <plugin
         filename="gz-waves1-hydrodynamics-system"
         name="gz::sim::systems::Hydrodynamics">
-
-        <!-- enable forces on these links -->
         <enable>MBARI_WEC_ROS::Buoy</enable>
-
         <hydrodynamics>
             <damping_on>1</damping_on>
             <viscous_drag_on>1</viscous_drag_on>
