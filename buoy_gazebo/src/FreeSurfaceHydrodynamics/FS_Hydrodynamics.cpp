@@ -99,6 +99,11 @@ void FS_HydroDynamics::ReadWAMITData_FD(std::string filenm) {
     }
     int coeffPerFreqs = n_lines1 / n_freqs;
 
+    /// \todo(srmainwaring) remove debug messages
+    // std::cout << "n_lines1:       " << n_lines1 << "\n"; 
+    // std::cout << "n_freqs:        " << n_freqs << "\n"; 
+    // std::cout << "coeffPerFreqs:  " << coeffPerFreqs << "\n"; 
+
     this->fd_am_dmp_tps = VectorXd(
         n_freqs - 1); // Infinite Frequency coefficents stored independelty,
                       // assumpting here is all .1 files have an infinite
@@ -110,12 +115,18 @@ void FS_HydroDynamics::ReadWAMITData_FD(std::string filenm) {
       {
         for (int k = 0; k < coeffPerFreqs; k++) {
           int i = n * coeffPerFreqs + k;
-#if 0
-          /// \todo(srmainwaring) fix compilation
-          this->fd_X_inf_freq(s1(i, 1) - 1, s1(i, 2) - 1) = m_rho * s1(i, 3);
-          this->fd_Y_inf_freq(s1(i, 1) - 1, s1(i, 2) - 1) =
-              0; // m_rho * fd_am_dmp_omega(n) * s1(i, 4);
-#endif
+
+          /// \todo(srmainwaring) remove debug messages
+          // std::cout << "n: " << n << ", k: " << k << ", i: " << i << "\n"; 
+          // std::cout << "s1(i, 1): " << s1(i, 1)
+          //           << "s1(i, 2): " << s1(i, 2) << "\n";
+          // std::cout << "s1(i, 1) - 1: " << s1(i, 1) - 1
+          //           << ", s1(i, 2) - 1: " << s1(i, 2) - 1<< "\n";
+          int idx1 = static_cast<int>(s1(i, 1) - 1);
+          int idx2 = static_cast<int>(s1(i, 2) - 1);
+          this->fd_X_inf_freq(idx1, idx2) = m_rho * s1(i, 3);
+          this->fd_Y_inf_freq(idx1, idx2) = 0; // m_rho * fd_am_dmp_omega(n) * s1(i, 4);
+
         }
       } else {
         this->fd_am_dmp_tps(nn) = s1(n * coeffPerFreqs, 0);
@@ -130,12 +141,10 @@ void FS_HydroDynamics::ReadWAMITData_FD(std::string filenm) {
         Y.Constant(0.0);
         for (int k = 0; k < coeffPerFreqs; k++) {
           int i = n * coeffPerFreqs + k;
-#if 0
-          /// \todo(srmainwaring) fix compilation
-          X(s1(i, 1) - 1, s1(i, 2) - 1) = m_rho * s1(i, 3);
-          Y(s1(i, 1) - 1, s1(i, 2) - 1) =
-              m_rho * fd_am_dmp_omega(nn) * s1(i, 4);
-#endif
+          int idx1 = static_cast<int>(s1(i, 1) - 1);
+          int idx2 = static_cast<int>(s1(i, 2) - 1);
+          X(idx1, idx2) = m_rho * s1(i, 3);
+          Y(idx1, idx2) = m_rho * fd_am_dmp_omega(nn) * s1(i, 4);
         }
         this->fd_X.push_back(X);
         this->fd_Y.push_back(Y);
@@ -225,25 +234,21 @@ void FS_HydroDynamics::ReadWAMITData_TD(std::string filenm) {
       m_tau_rad(n) = s1(n * n_lines1 / n_timesteps, 0);
 
     for (int n = 0, k = 0; n < n_lines1; n++) {
-#if 0
-      /// \todo(srmainwaring) fix compilation
-      if (m_IR_cosint(s1(n, 1) - 1, s1(n, 2) - 1).size() == 0) {
-        m_IR_cosint(s1(n, 1) - 1, s1(n, 2) - 1)
+      int idx1 = static_cast<int>(s1(n, 1) - 1);
+      int idx2 = static_cast<int>(s1(n, 2) - 1);
+      if (m_IR_cosint(idx1, idx2).size() == 0) {
+        m_IR_cosint(idx1, idx2)
             .resize(n_timesteps); // Set vector size once
-        m_IR_sinint(s1(n, 1) - 1, s1(n, 2) - 1)
+        m_IR_sinint(idx1, idx2)
             .resize(n_timesteps); // Set vector size once
       }
-#endif
       if ((s1(n, 1) == s1(0, 1)) && (s1(n, 2) == s1(0, 2)))
         k++;
 
-#if 0
-      /// \todo(srmainwaring) fix compilation
-      m_IR_cosint(s1(n, 1) - 1, s1(n, 2) - 1)(k - 1) =
+      m_IR_cosint(idx1, idx2)(k - 1) =
           m_rho * s1(n, 3); // Fill in dataFill in data
-      m_IR_sinint(s1(n, 1) - 1, s1(n, 2) - 1)(k - 1) =
+      m_IR_sinint(idx1, idx2)(k - 1) =
           m_rho * s1(n, 4); // Fill in dataFill in data
-#endif
     }
   } else
     std::cout << "ERROR:  " << filenm << "_IR.1 can't be opened" << std::endl;

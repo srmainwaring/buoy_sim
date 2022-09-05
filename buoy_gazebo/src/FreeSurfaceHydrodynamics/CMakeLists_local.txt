@@ -39,12 +39,12 @@ add_library(WaveBodyInteractions SHARED
   FS_Hydrodynamics.cpp
   LinearIncidentWave.cpp
 )
-set_property(TARGET WaveBodyInteractions PROPERTY CXX_STANDARD 17)
 target_link_libraries(WaveBodyInteractions
   PRIVATE gz-plugin${GZ_PLUGIN_VER}::gz-plugin${GZ_PLUGIN_VER}
   PRIVATE gz-sim7::gz-sim7
   Eigen3::Eigen
 )
+set_property(TARGET WaveBodyInteractions PROPERTY CXX_STANDARD 17)
 ament_target_dependencies(WaveBodyInteractions
   gnuplot_iostream
 )
