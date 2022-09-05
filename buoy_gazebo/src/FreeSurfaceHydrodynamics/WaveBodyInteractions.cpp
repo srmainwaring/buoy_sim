@@ -135,10 +135,9 @@ void WaveBodyInteractions::Configure(
   //this->dataPtr->Inc.SetToMonoChromatic(2 * A, T, 0);
 
   /// \todo(srmainwaring) set up parameters for locating these files
-  /// \todo(srmainwaring) ask Andy Hamilton for example data to run...
   std::string HydrodynamicsBaseFilename =
-      "/home/hamilton/buoy_ws/src/buoy_sim/buoy_gazebo/src/"
-      "FreeSurfaceHydrodynamics/HydrodynamicCoeffs/BuoyA5";
+      "src/buoy_sim/buoy_gazebo/"
+      "src/FreeSurfaceHydrodynamics/HydrodynamicCoeffs/BuoyA5";
   this->dataPtr->FloatingBody.ReadWAMITData_FD(HydrodynamicsBaseFilename);
   this->dataPtr->FloatingBody.ReadWAMITData_TD(HydrodynamicsBaseFilename);
   this->dataPtr->FloatingBody.SetTimestepSize(.001); // TODO:  Need to get timestep size from ecm.

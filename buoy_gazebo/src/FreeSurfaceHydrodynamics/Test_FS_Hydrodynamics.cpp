@@ -19,13 +19,20 @@
 #include <ctime>
 
 #include <Eigen/Dense>
-#include "gnuplot-iostream.h"
+
+#ifndef HAVE_GNUPLOT
+  #define HAVE_GNUPLOT 0
+#endif
+
+#if HAVE_GNUPLOT == 1
+  #include "gnuplot-iostream.h"
+#endif
+
 #include "FS_Hydrodynamics.hpp"
 
 //#include "EtaFunctor.hpp"
 #include "LinearIncidentWave.hpp"
 //#include <boost/tuple/tuple.hpp>
-#include "gnuplot-iostream.h"
 
 int main()
 {
@@ -88,6 +95,7 @@ int main()
       }
       if(first)
       {
+#if HAVE_GNUPLOT == 1
         Gnuplot gp;
         first = 0;
         char Amp[10];
@@ -101,9 +109,11 @@ int main()
            << ",'-' w l title 'Accel'\n";
         gp.send1d(boost::make_tuple(pts_t, pts_vel));
         gp.send1d(boost::make_tuple(pts_t, pts_accel));
+#endif
       }
       if ((F_min < -1) && (F_max > 1)) // Don't plot near-zero forces
       {
+#if HAVE_GNUPLOT == 1
         Gnuplot gp;
         char Amp[10];
         sprintf(Amp, "%.1f", A);
@@ -127,6 +137,7 @@ int main()
           gp << "set  ylabel 'M (N-m)'\n";
         gp << "set title '" << modes[i] << "(t) = " << std::fixed << std::setprecision(1) << Amp << "cos(2 pi t/" << Per << ")'  \n";
         gp << "replot\n";
+#endif
       }
     }
 #endif
@@ -156,6 +167,7 @@ int main()
       ExtForce = BuoyA5.ExcitingForce();
       pts_F_TD.push_back(ExtForce(j));
     }
+#if HAVE_GNUPLOT == 1
     Gnuplot gp;
     gp << "set term X11 title  '" << modes[j] << " Exciting Forces'\n";
     gp << "set grid\n";
@@ -176,6 +188,7 @@ int main()
     else
       gp << "set  ylabel 'M (N-m)'\n";
     gp << "replot\n";
+#endif
   }
 #endif
 
@@ -204,6 +217,7 @@ int main()
       std::cout << "F_B = " << BuoyancyForce.transpose() << std::endl << std::endl;
       pts_F_B.push_back(BuoyancyForce(j));
     }
+#if HAVE_GNUPLOT ==  1
     Gnuplot gp;
     gp << "set term X11 title  '" << modes[j] << " Buoyancy Forces'\n";
     gp << "set grid\n";
@@ -222,6 +236,7 @@ int main()
     else
       gp << "set  ylabel 'M (N-m)'\n";
     gp << "replot\n";
+#endif
   }
 #endif
 }

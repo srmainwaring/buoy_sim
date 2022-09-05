@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "FS_Hydrodynamics.hpp"
+
 #include "mlinterp.hpp"
 #include <Eigen/Dense>
 
@@ -25,7 +26,14 @@
 
 #include <cmath>
 //#include <boost/tuple/tuple.hpp>
-#include "gnuplot-iostream.h"
+
+#ifndef HAVE_GNUPLOT
+  #define HAVE_GNUPLOT 0
+#endif
+
+#if HAVE_GNUPLOT == 1
+  #include <gnuplot-iostream.h>
+#endif
 
 using namespace Eigen;
 using namespace mlinterp;
@@ -63,8 +71,6 @@ FS_HydroDynamics::FS_HydroDynamics(IncidentWave &IncWave, double L, double g,
  //void FS_HydroDynamics::AssignIncidentWave(IncidentWave &IncWave)
  //{
  //    _IncWave = IncWave);
-
-
 
 /// \brief  Read frequency domain coefficients from WAMIT.
 ///
@@ -104,9 +110,12 @@ void FS_HydroDynamics::ReadWAMITData_FD(std::string filenm) {
       {
         for (int k = 0; k < coeffPerFreqs; k++) {
           int i = n * coeffPerFreqs + k;
+#if 0
+          /// \todo(srmainwaring) fix compilation
           this->fd_X_inf_freq(s1(i, 1) - 1, s1(i, 2) - 1) = m_rho * s1(i, 3);
           this->fd_Y_inf_freq(s1(i, 1) - 1, s1(i, 2) - 1) =
               0; // m_rho * fd_am_dmp_omega(n) * s1(i, 4);
+#endif
         }
       } else {
         this->fd_am_dmp_tps(nn) = s1(n * coeffPerFreqs, 0);
@@ -121,9 +130,12 @@ void FS_HydroDynamics::ReadWAMITData_FD(std::string filenm) {
         Y.Constant(0.0);
         for (int k = 0; k < coeffPerFreqs; k++) {
           int i = n * coeffPerFreqs + k;
+#if 0
+          /// \todo(srmainwaring) fix compilation
           X(s1(i, 1) - 1, s1(i, 2) - 1) = m_rho * s1(i, 3);
           Y(s1(i, 1) - 1, s1(i, 2) - 1) =
               m_rho * fd_am_dmp_omega(nn) * s1(i, 4);
+#endif
         }
         this->fd_X.push_back(X);
         this->fd_Y.push_back(Y);
@@ -213,19 +225,25 @@ void FS_HydroDynamics::ReadWAMITData_TD(std::string filenm) {
       m_tau_rad(n) = s1(n * n_lines1 / n_timesteps, 0);
 
     for (int n = 0, k = 0; n < n_lines1; n++) {
+#if 0
+      /// \todo(srmainwaring) fix compilation
       if (m_IR_cosint(s1(n, 1) - 1, s1(n, 2) - 1).size() == 0) {
         m_IR_cosint(s1(n, 1) - 1, s1(n, 2) - 1)
             .resize(n_timesteps); // Set vector size once
         m_IR_sinint(s1(n, 1) - 1, s1(n, 2) - 1)
             .resize(n_timesteps); // Set vector size once
       }
+#endif
       if ((s1(n, 1) == s1(0, 1)) && (s1(n, 2) == s1(0, 2)))
         k++;
 
+#if 0
+      /// \todo(srmainwaring) fix compilation
       m_IR_cosint(s1(n, 1) - 1, s1(n, 2) - 1)(k - 1) =
           m_rho * s1(n, 3); // Fill in dataFill in data
       m_IR_sinint(s1(n, 1) - 1, s1(n, 2) - 1)(k - 1) =
           m_rho * s1(n, 4); // Fill in dataFill in data
+#endif
     }
   } else
     std::cout << "ERROR:  " << filenm << "_IR.1 can't be opened" << std::endl;
@@ -279,6 +297,7 @@ void FS_HydroDynamics::Plot_FD_Coeffs() {
           dmp_norm += fabs(fd_Y[k](i, j)) + fabs(fd_Y[k](j, i));
         }
         if ((am_norm > 1e-6) || (dmp_norm > 1e-6)) {
+#if HAVE_GNUPLOT == 1
           Gnuplot gp;
 
           if (i == j) {
@@ -324,6 +343,7 @@ void FS_HydroDynamics::Plot_FD_Coeffs() {
             gp.send1d(boost::make_tuple(pts_omega, pts_dmp));
             gp.send1d(boost::make_tuple(pts_omega, pts_dmp_sym));
           }
+#endif
         }
       }
   }
@@ -339,6 +359,7 @@ void FS_HydroDynamics::Plot_FD_Coeffs() {
         pts_Mod_Xi.push_back(fd_Mod_Xi[i](k));
         pts_Pha_Xi.push_back(fd_Pha_Xi[i](k));
       }
+#if HAVE_GNUPLOT == 1
       Gnuplot gp;
       gp << "set term X11 title '" << modes[i] << "Exciting Forces'\n";
       gp << "set multiplot layout 2,1 rowsfirst \n";
@@ -362,6 +383,7 @@ void FS_HydroDynamics::Plot_FD_Coeffs() {
          << "'-' u 1:2 with lines title 'Pha'\n";
       gp.send1d(boost::make_tuple(pts_omega, pts_Mod_Xi));
       gp.send1d(boost::make_tuple(pts_omega, pts_Pha_Xi));
+#endif
     }
   }
 }
@@ -381,7 +403,7 @@ void FS_HydroDynamics::Plot_TD_Coeffs() {
           if (i != j)
             pts_L_sym.push_back(m_L_rad(j, i)[k]);
         }
-
+#if HAVE_GNUPLOT == 1
         Gnuplot gp;
         if (i == j) {
           gp << "set term X11 title 'Radiation IRF (" << i + 1 << "," << j + 1
@@ -403,6 +425,7 @@ void FS_HydroDynamics::Plot_TD_Coeffs() {
           gp << "set xlabel 'sec'\n";
           gp << "set ylabel '-'\n";
         }
+#endif
       }
     }
   // Plot Exciting Force Impulse Response Functions
@@ -416,7 +439,7 @@ void FS_HydroDynamics::Plot_TD_Coeffs() {
                                              // no real reason to store...
       pts_Xi.push_back(m_L_exc(j)[k]);
     }
-
+#if HAVE_GNUPLOT == 1
     Gnuplot gp;
     gp << "set term X11 title '" << modes[j] << "Wave Exciting IRF '\n";
     gp << "set grid\n";
@@ -424,8 +447,10 @@ void FS_HydroDynamics::Plot_TD_Coeffs() {
     gp.send1d(boost::make_tuple(pts_tau, pts_Xi));
     gp << "set xlabel 'sec'\n";
     gp << "set ylabel '-'\n";
+#endif
   }
 }
+
 /// \brief Returns added mass at specified frequency
 ///  Interpolates from tabulated WAMIT data, omega must be greater than or equal
 ///  to zero.
