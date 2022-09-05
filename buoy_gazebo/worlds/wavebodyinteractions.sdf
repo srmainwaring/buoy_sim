@@ -74,12 +74,16 @@
       </sensor>
     </link>
      
-    <plugin filename="WaveBodyInteractions" name="buoy_gazebo::WaveBodyInteractions">  
+     <!-- TODO: on macOS we seem to need the fully qualified library name? -->
+    <plugin filename="libWaveBodyInteractions.dylib"
+      name="buoy_gazebo::WaveBodyInteractions">  
       <LinkName>Buoy</LinkName>
-      <WaterplaneOrigin_x>0</WaterplaneOrigin_x>  <!-- Waterplane origin relative to link origin -->
+      <!-- Waterplane origin relative to link origin -->
+      <WaterplaneOrigin_x>0</WaterplaneOrigin_x>
       <WaterplaneOrigin_y>0</WaterplaneOrigin_y>
       <WaterplaneOrigin_z>2.46</WaterplaneOrigin_z> 
-      <COB_x>0</COB_x>  <!-- COG relative to waterplance origin -->
+      <!-- COG relative to waterplance origin -->
+      <COB_x>0</COB_x>
       <COB_y>0</COB_y>
       <COB_z>-.18</COB_z> 
       <Vol>1.75</Vol>
