@@ -12,18 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "LinearIncidentWave.hpp"
 
-
-#include <iostream>
-#include <fstream>
-#include <vector>
+#include <chrono>
+#include <csignal>
 #include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <thread>
+#include <vector>
+#include <tuple>
 
 #include <Eigen/Dense>
-#include "LinearIncidentWave.hpp"
 
 using namespace Eigen;
 
+#include <gnuplot-iostream.h>
 
 int main()
 {
@@ -35,8 +39,35 @@ int main()
 
   std::cout << Inc << std::endl;
 
-for(double t = 0; t<600; t+=.1)
-   std::cout << t << "  " << Inc.eta(0,0,t) << "   " << Inc.etadot(0,0,t) << "  " << cos(2*M_PI*t/12) << std::endl;
+  std::vector<double> pts_tau, pts_eta, pts_etadot, pts_cos;
+
+  for(double t = 0; t<600; t+=0.1)
+  {
+    std::cout << t
+        << "  " << Inc.eta(0,0,t)
+        << "  " << Inc.etadot(0,0,t)
+        << "  " << cos(2*M_PI*t/12)
+        << std::endl;
+
+    pts_tau.push_back(t);
+    pts_eta.push_back(Inc.eta(0,0,t));
+    pts_etadot.push_back(Inc.etadot(0,0,t));
+    pts_cos.push_back(cos(2*M_PI*t/12));
+  }
+
+  // plotting
+  Gnuplot gp;
+
+  gp << "set term qt title 'Test Incident Wave'\n";
+  gp << "set multiplot layout 2,1 rowsfirst \n";
+  gp << "set grid\n";
+  gp << "plot "
+      << "'-' u 1:2 with lines title 'eta',"
+      << "'-' u 1:2 with lines title 'etadot'\n";
+  gp.send1d(std::make_tuple(pts_tau, pts_eta));
+  gp.send1d(std::make_tuple(pts_tau, pts_etadot));
+  gp << "set xlabel 'sec'\n";
+  gp << "set ylabel 'm'\n";
 
   return 0;
 }
