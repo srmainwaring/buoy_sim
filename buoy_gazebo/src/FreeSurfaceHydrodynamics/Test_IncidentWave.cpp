@@ -12,18 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "LinearIncidentWave.hpp"
-
-#include <chrono>
-#include <csignal>
-#include <cstdlib>
-#include <fstream>
 #include <iostream>
-#include <thread>
+#include <fstream>
 #include <vector>
-#include <tuple>
+#include <cstdlib>
 
 #include <Eigen/Dense>
+#include "LinearIncidentWave.hpp"
 
 using namespace Eigen;
 
@@ -59,7 +54,7 @@ int main()
   Gnuplot gp;
 
   gp << "set term qt title 'Test Incident Wave'\n";
-  gp << "set multiplot layout 2,1 rowsfirst \n";
+  gp << "set multiplot layout 1,1 rowsfirst \n";
   gp << "set grid\n";
   gp << "plot "
       << "'-' u 1:2 with lines title 'eta',"

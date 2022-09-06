@@ -36,6 +36,9 @@ target_include_directories(Test_IncidentWave_Peters
   )
 target_link_libraries (Test_IncidentWave_Peters
   Eigen3::Eigen
+  Boost::system
+  Boost::iostreams
+  Boost::filesystem
 )
 set_property(TARGET Test_IncidentWave_Peters PROPERTY CXX_STANDARD 17)
 
