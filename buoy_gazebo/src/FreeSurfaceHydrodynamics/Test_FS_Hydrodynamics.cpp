@@ -21,7 +21,7 @@
 #include <Eigen/Dense>
 
 #ifndef HAVE_GNUPLOT
-  #define HAVE_GNUPLOT 0
+  #define HAVE_GNUPLOT 1
 #endif
 
 #if HAVE_GNUPLOT == 1
@@ -43,8 +43,11 @@ int main()
   BuoyA5.SetWaterplane(5.47,1.37,1.37); // Set area and 2nd moments of area for waterplane
   BuoyA5.SetCOB(0,0,-.18); //Set COB relative to waterplane coordinate system.
   BuoyA5.SetVolume(1.75); 
-  BuoyA5.ReadWAMITData_FD("HydrodynamicCoeffs/BuoyA5");
-  BuoyA5.ReadWAMITData_TD("HydrodynamicCoeffs/BuoyA5");
+  std::string hydrodynamicsBaseFilename =
+      "src/buoy_sim/buoy_gazebo/"
+      "src/FreeSurfaceHydrodynamics/HydrodynamicCoeffs/BuoyA5";
+  BuoyA5.ReadWAMITData_FD(hydrodynamicsBaseFilename);
+  BuoyA5.ReadWAMITData_TD(hydrodynamicsBaseFilename);
   BuoyA5.Plot_FD_Coeffs();
   BuoyA5.SetTimestepSize(.01);
   BuoyA5.Plot_TD_Coeffs();
@@ -102,7 +105,7 @@ int main()
         sprintf(Amp, "%.1f", A);
         char Per[10];
         sprintf(Per, "%.1f", T);
-        gp << "set term X11 title  'A = " << Amp << "m  T = " << Per << "s'\n";
+        gp << "set term qt title  'A = " << Amp << "m  T = " << Per << "s'\n";
         gp << "set grid\n";
         gp << "set xlabel 'time (s)'\n";
         gp << "plot '-' w l title 'Vel'"
@@ -119,7 +122,7 @@ int main()
         sprintf(Amp, "%.1f", A);
         char Per[10];
         sprintf(Per, "%.1f", T);
-        gp << "set term X11 title 'Radiation Forces: " << modes[i] << " Motions, " << modes[j] << " Forces:  A = " << Amp << "m  T = " << Per << "s  \n";
+        gp << "set term qt title 'Radiation Forces: " << modes[i] << " Motions, " << modes[j] << " Forces:  A = " << Amp << "m  T = " << Per << "s  \n";
         gp << "set grid\n";
         gp << "set xlabel 'time (s)'\n";
         if (j < 3)
@@ -169,7 +172,7 @@ int main()
     }
 #if HAVE_GNUPLOT == 1
     Gnuplot gp;
-    gp << "set term X11 title  '" << modes[j] << " Exciting Forces'\n";
+    gp << "set term qt title  '" << modes[j] << " Exciting Forces'\n";
     gp << "set grid\n";
     gp << "set xlabel 'time (s)'\n";
     if (j < 3)
@@ -219,7 +222,7 @@ int main()
     }
 #if HAVE_GNUPLOT ==  1
     Gnuplot gp;
-    gp << "set term X11 title  '" << modes[j] << " Buoyancy Forces'\n";
+    gp << "set term qt title  '" << modes[j] << " Buoyancy Forces'\n";
     gp << "set grid\n";
     gp << "set xlabel 'time (s)'\n";
     if (j < 3)
