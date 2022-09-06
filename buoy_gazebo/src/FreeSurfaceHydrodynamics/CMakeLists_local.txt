@@ -7,11 +7,16 @@ find_package(gz-cmake3 REQUIRED)
 # macOS installs eigen 3.4 so relax minor version
 find_package (Eigen3 3 REQUIRED NO_MODULE)
 
-set(Boost_USE_STATIC_LIBS OFF)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(Boost 1.71.0 COMPONENTS system iostreams filesystem) 
+# Boost is required when using GnuPlot
+find_package(Boost REQUIRED COMPONENTS
+  iostreams system filesystem
+)
 
+# TODO: packaging of gnuplot_iostream not exporting the include dirs correctly?
+find_package(gnuplot_iostream REQUIRED)
+set(gnuplot_iostream_INCLUDE_DIRS
+  "${CMAKE_INSTALL_PREFIX}/../gnuplot_iostream/include/gnuplot_iostream"
+)
 
 #set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra")
 
@@ -19,30 +24,76 @@ find_package(gz-plugin2 REQUIRED COMPONENTS register)
 set(GZ_PLUGIN_VER ${gz-plugin2_VERSION_MAJOR})
 find_package(gz-sim7 REQUIRED)
 
-add_executable(Test_IncidentWave_Peters  Test_IncidentWave_Peters.cpp LinearIncidentWave.cpp)
-target_link_libraries (Test_IncidentWave_Peters Eigen3::Eigen)
-target_include_directories(Test_IncidentWave_Peters PRIVATE ${Eigen3_INCLUDE_DIRS})
+# Test_IncidentWave_Peters
+add_executable(Test_IncidentWave_Peters
+  Test_IncidentWave_Peters.cpp
+  LinearIncidentWave.cpp
+)
+target_include_directories(Test_IncidentWave_Peters
+  PRIVATE
+  ${Eigen3_INCLUDE_DIRS}
+  ${gnuplot_iostream_INCLUDE_DIRS}
+  )
+target_link_libraries (Test_IncidentWave_Peters
+  Eigen3::Eigen
+)
 set_property(TARGET Test_IncidentWave_Peters PROPERTY CXX_STANDARD 17)
 
-add_executable(Test_IncidentWave  Test_IncidentWave.cpp LinearIncidentWave.cpp)
-target_link_libraries (Test_IncidentWave Eigen3::Eigen)
-target_include_directories(Test_IncidentWave PRIVATE ${Eigen3_INCLUDE_DIRS})
+# Test_IncidentWave
+add_executable(Test_IncidentWave
+  Test_IncidentWave.cpp
+  LinearIncidentWave.cpp
+)
+target_include_directories(Test_IncidentWave
+  PRIVATE
+    ${Eigen3_INCLUDE_DIRS}
+    ${gnuplot_iostream_INCLUDE_DIRS}
+    )
+target_link_libraries (Test_IncidentWave
+  Eigen3::Eigen
+  Boost::system
+  Boost::iostreams
+  Boost::filesystem
+)
 set_property(TARGET Test_IncidentWave PROPERTY CXX_STANDARD 17)
 
-add_executable(Test_FS_Hydrodynamics Test_FS_Hydrodynamics.cpp FS_Hydrodynamics.cpp LinearIncidentWave.cpp)
-target_include_directories(Test_FS_Hydrodynamics PRIVATE ${Eigen3_INCLUDE_DIRS})
-target_link_libraries (Test_FS_Hydrodynamics Eigen3::Eigen Boost::system Boost::iostreams Boost::filesystem)
+# Test_FS_Hydrodynamics
+add_executable(Test_FS_Hydrodynamics
+  Test_FS_Hydrodynamics.cpp
+  FS_Hydrodynamics.cpp
+  LinearIncidentWave.cpp
+)
+target_include_directories(Test_FS_Hydrodynamics
+  PRIVATE
+   ${Eigen3_INCLUDE_DIRS}
+   ${gnuplot_iostream_INCLUDE_DIRS}
+)
+target_link_libraries (Test_FS_Hydrodynamics
+  Eigen3::Eigen
+  Boost::system
+  Boost::iostreams
+  Boost::filesystem
+)
 set_property(TARGET Test_FS_Hydrodynamics PROPERTY CXX_STANDARD 17)
 
+# WaveBodyInteractions
 add_library(WaveBodyInteractions SHARED
   WaveBodyInteractions.cpp
   FS_Hydrodynamics.cpp
   LinearIncidentWave.cpp
 )
+target_include_directories(WaveBodyInteractions
+  PRIVATE
+    ${Eigen3_INCLUDE_DIRS}
+    ${gnuplot_iostream_INCLUDE_DIRS}
+)
 target_link_libraries(WaveBodyInteractions
   PRIVATE gz-plugin${GZ_PLUGIN_VER}::gz-plugin${GZ_PLUGIN_VER}
   PRIVATE gz-sim7::gz-sim7
   Eigen3::Eigen
+  Boost::iostreams
+  Boost::system
+  Boost::filesystem
 )
 set_property(TARGET WaveBodyInteractions PROPERTY CXX_STANDARD 17)
 ament_target_dependencies(WaveBodyInteractions
@@ -58,16 +109,18 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 # Install plugins
-install(TARGETS
-  WaveBodyInteractions
+install(
+  TARGETS
+    WaveBodyInteractions
   DESTINATION lib/${PROJECT_NAME}
 )
 
 # Install executables
-install(TARGETS
-  Test_IncidentWave_Peters
-  Test_IncidentWave
-  Test_FS_Hydrodynamics
+install(
+  TARGETS
+    Test_IncidentWave_Peters
+    Test_IncidentWave
+    Test_FS_Hydrodynamics
   DESTINATION lib/${PROJECT_NAME}
 )
 
