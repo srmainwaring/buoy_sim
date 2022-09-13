@@ -132,6 +132,7 @@ ament_export_targets(export_BuoyECMStateData)
 
 # Resources
 install(DIRECTORY
+  models
   worlds
   launch
   gazebo
