@@ -1,0 +1,61 @@
+<?xml version="1.0" ?>
+<sdf version="1.8">
+  <world name="world_demo">
+
+    <physics name="1ms" type="ignored">
+      <max_step_size>.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <light name="sun" type="directional">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <!--
+      Random waves sampled from the ECKV omni-directional 
+      elevation variance spectrum with direction sampled from 
+      a Cos2S spreading function.
+    -->
+    <!-- <include>
+      <pose>0 0 0 0 0 0</pose>
+      <uri>model://waves</uri>
+    </include> -->
+
+    <!--
+      Monochromatic waves with period 8s and amplitude 2m
+    -->
+    <include>
+      <pose>0 0 0 0 0 0</pose>
+      <uri>model://monochromatic_waves</uri>
+    </include>
+
+    <!--
+      Test body WEC-Sim Ellipsoid
+    -->
+    <include>
+      <pose>0 0 0 0 0 0</pose>
+      <uri>model://wec_sim_ellipsoid</uri>
+      <plugin
+          filename="gz-waves1-hydrodynamics-system"
+          name="gz::sim::systems::Hydrodynamics">
+        <enable>wec_sim_ellipsoid::base_link::collision</enable>
+        <hydrodynamics>
+          <damping_on>1</damping_on>
+          <viscous_drag_on>1</viscous_drag_on>
+          <pressure_drag_on>1</pressure_drag_on>
+        </hydrodynamics>
+      </plugin>
+    </include>
+
+  </world>
+</sdf>
