@@ -1,0 +1,25 @@
+<robot name="wec_sim_ellipsoid">
+  <material name="Red">
+    <color rgba="1 0 0 1"/>
+  </material>
+    <link name="base_link">
+        <inertial>
+            <mass value="134200" />
+            <origin xyz="0 0 -2" rpy="0 -0 0" />
+            <inertia ixx="838750" ixy="0" ixz="0" iyy="838750" iyz="0" izz="1.342e+06" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 -2" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="package://buoy_gazebo/models/wec_sim_ellipsoid/meshes/ellipsoid.dae" scale="1 1 1" />
+            </geometry>
+            <material name="Red"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 -2" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="package://buoy_gazebo/models/wec_sim_ellipsoid/meshes/ellipsoid.dae" scale="1 1 1" />
+            </geometry>
+        </collision>
+    </link>
+</robot>

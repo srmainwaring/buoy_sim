@@ -7,7 +7,8 @@
         <pose>0 0 -2.0 0 0 0</pose>
         <geometry>
           <mesh>
-            <uri>meshes/ellipsoid.stl</uri>
+            <!-- <uri>package://buoy_gazebo/models/wec_sim_ellipsoid/meshes/ellipsoid.stl</uri> -->
+            <uri>models://wec_sim_ellipsoid/meshes/ellipsoid.stl</uri>
           </mesh>
         </geometry>
         <material>
@@ -20,7 +21,8 @@
         <pose>0 0 -2.0 0 0 0</pose>
         <geometry>
           <mesh>
-            <uri>meshes/ellipsoid.stl</uri>
+            <!-- <uri>package://buoy_gazebo/models/wec_sim_ellipsoid/meshes/ellipsoid.stl</uri> -->
+            <uri>models://wec_sim_ellipsoid/meshes/ellipsoid.stl</uri>
           </mesh>
         </geometry>
       </collision>
