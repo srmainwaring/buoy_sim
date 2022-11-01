@@ -152,7 +152,8 @@ if(BUILD_TESTING)
     BOOST_COMPONENTS
       iostreams system filesystem
     EXTRA_ROS_PKGS
-      buoy_gazebo)
+      buoy_gazebo
+      simple_interp)
 
   buoy_add_gtest(no_inputs)
   buoy_add_gtest(no_inputs_ros_feedback ROS LAUNCH_TEST)
