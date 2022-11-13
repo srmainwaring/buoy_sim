@@ -155,6 +155,20 @@ if(BUILD_TESTING)
       buoy_gazebo
       simple_interp)
 
+  buoy_add_gtest(eh_solver
+    EXTRA_ROS_PKGS
+      buoy_gazebo
+      simple_interp)
+
+  buoy_add_gtest(eh_windtarget
+    BOOST_COMPONENTS
+      filesystem
+      iostreams
+      system
+    EXTRA_ROS_PKGS
+      buoy_gazebo
+      simple_interp)
+
   buoy_add_gtest(no_inputs)
   buoy_add_gtest(no_inputs_ros_feedback ROS LAUNCH_TEST)
   buoy_add_gtest(pc_commands_ros_feedback ROS LAUNCH_TEST)
