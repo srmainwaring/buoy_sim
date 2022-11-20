@@ -131,6 +131,11 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/PolytropicPneumaticSpring
   FILES_MATCHING PATTERN "*.hpp"
 )
 
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/FreeSurfaceHydrodynamics
+  DESTINATION include/buoy_gazebo
+  FILES_MATCHING PATTERN "*.hpp"
+)
+
 ament_export_targets(export_BuoyECMStateData)
 
 ament_export_targets(export_Interp1d HAS_LIBRARY_TARGET)
