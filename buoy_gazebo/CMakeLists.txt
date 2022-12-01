@@ -25,6 +25,7 @@ set(GZ_COMMON_VER ${gz-common5_VERSION_MAJOR})
 find_package(gz-sim7 REQUIRED)
 set(GZ_SIM_VER ${gz-sim7_VERSION_MAJOR})
 
+find_package(gnuplot-iostream REQUIRED)
 
 # Plugins
 #

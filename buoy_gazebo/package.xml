@@ -18,7 +18,6 @@
   <depend>buoy_description</depend>
   <depend>buoy_interfaces</depend>
   <depend>buoy_msgs</depend>
-  <depend>gnuplot_iostream</depend>
   <depend>gz_sim7</depend>
   <depend>rclcpp</depend>
   <depend>robot_state_publisher</depend>
@@ -29,6 +28,7 @@
   <depend>simple_interp</depend>
   <depend>gnuplot-iostream</depend>
 
+  <test_depend>gnuplot-iostream</test_depend>
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 

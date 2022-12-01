@@ -12,12 +12,6 @@ find_package(Boost REQUIRED COMPONENTS
   iostreams system filesystem
 )
 
-# TODO: packaging of gnuplot_iostream not exporting the include dirs correctly?
-find_package(gnuplot_iostream REQUIRED)
-set(gnuplot_iostream_INCLUDE_DIRS
-  "${CMAKE_INSTALL_PREFIX}/../gnuplot_iostream/include/gnuplot_iostream"
-)
-
 #set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra")
 
 find_package(gz-plugin2 REQUIRED COMPONENTS register)
@@ -32,7 +26,6 @@ add_executable(Test_IncidentWave_Peters
 target_include_directories(Test_IncidentWave_Peters
   PRIVATE
   ${Eigen3_INCLUDE_DIRS}
-  ${gnuplot_iostream_INCLUDE_DIRS}
   )
 target_link_libraries (Test_IncidentWave_Peters
   Eigen3::Eigen
@@ -41,6 +34,7 @@ target_link_libraries (Test_IncidentWave_Peters
   Boost::filesystem
 )
 set_property(TARGET Test_IncidentWave_Peters PROPERTY CXX_STANDARD 17)
+ament_target_dependencies(Test_IncidentWave_Peters gnuplot-iostream)
 
 # Test_IncidentWave
 add_executable(Test_IncidentWave
@@ -50,7 +44,6 @@ add_executable(Test_IncidentWave
 target_include_directories(Test_IncidentWave
   PRIVATE
     ${Eigen3_INCLUDE_DIRS}
-    ${gnuplot_iostream_INCLUDE_DIRS}
     )
 target_link_libraries (Test_IncidentWave
   Eigen3::Eigen
@@ -59,6 +52,7 @@ target_link_libraries (Test_IncidentWave
   Boost::filesystem
 )
 set_property(TARGET Test_IncidentWave PROPERTY CXX_STANDARD 17)
+ament_target_dependencies(Test_IncidentWave gnuplot-iostream)
 
 # Test_FS_Hydrodynamics
 add_executable(Test_FS_Hydrodynamics
@@ -69,7 +63,6 @@ add_executable(Test_FS_Hydrodynamics
 target_include_directories(Test_FS_Hydrodynamics
   PRIVATE
    ${Eigen3_INCLUDE_DIRS}
-   ${gnuplot_iostream_INCLUDE_DIRS}
 )
 target_link_libraries (Test_FS_Hydrodynamics
   Eigen3::Eigen
@@ -78,6 +71,7 @@ target_link_libraries (Test_FS_Hydrodynamics
   Boost::filesystem
 )
 set_property(TARGET Test_FS_Hydrodynamics PROPERTY CXX_STANDARD 17)
+ament_target_dependencies(Test_FS_Hydrodynamics gnuplot-iostream)
 
 # WaveBodyInteractions
 add_library(WaveBodyInteractions SHARED
@@ -88,7 +82,6 @@ add_library(WaveBodyInteractions SHARED
 target_include_directories(WaveBodyInteractions
   PRIVATE
     ${Eigen3_INCLUDE_DIRS}
-    ${gnuplot_iostream_INCLUDE_DIRS}
 )
 target_link_libraries(WaveBodyInteractions
   PRIVATE gz-plugin${GZ_PLUGIN_VER}::gz-plugin${GZ_PLUGIN_VER}
@@ -99,9 +92,7 @@ target_link_libraries(WaveBodyInteractions
   Boost::filesystem
 )
 set_property(TARGET WaveBodyInteractions PROPERTY CXX_STANDARD 17)
-ament_target_dependencies(WaveBodyInteractions
-  gnuplot_iostream
-)
+ament_target_dependencies(WaveBodyInteractions gnuplot-iostream)
 
 # Install rules
 install(TARGETS ${PROJECT_NAME}
