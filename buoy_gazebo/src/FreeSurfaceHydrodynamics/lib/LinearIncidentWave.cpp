@@ -31,12 +31,12 @@ LinearIncidentWave::LinearIncidentWave()
 /// \brief Select PM-Spectrum (default num of phases)
 void LinearIncidentWave::SetToPiersonMoskowitzSpectrum(double Hs, double beta)
 {
-  SetToPiersonMoskowitzSpectrum(Hs, 8.0, beta, DEFAULT_N_PHASES);
+  SetToPiersonMoskowitzSpectrum(Hs, beta, DEFAULT_N_PHASES);
 }
 
 /// \brief Select PM-Spectrum (set num of phases)
 void LinearIncidentWave::SetToPiersonMoskowitzSpectrum(
-  double Hs, double Tp, double beta,
+  double Hs, double beta,
   int n_phases)
 {
   m_SpectrumType = WaveSpectrumType::PiersonMoskowitz;

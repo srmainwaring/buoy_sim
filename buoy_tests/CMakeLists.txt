@@ -12,6 +12,8 @@ find_package(buoy_gazebo REQUIRED)
 message(STATUS ${buoy_gazebo_INCLUDE_DIRS})
 
 if(BUILD_TESTING)
+  find_package(gnuplot-iostream REQUIRED)
+
   find_package(gz-sim7 REQUIRED)
   set(GZ_SIM_VER ${gz-sim7_VERSION_MAJOR})
 
@@ -67,7 +69,7 @@ if(BUILD_TESTING)
     endif()
 
     if(buoy_add_gtest_ROS)
-      set(ROS_PKGS rclcpp buoy_interfaces buoy_api_cpp)
+      set(ROS_PKGS rclcpp buoy_interfaces buoy_api_cpp gnuplot-iostream)
       foreach(PKG ${ROS_PKGS})
         find_package(${PKG} REQUIRED)
       endforeach()

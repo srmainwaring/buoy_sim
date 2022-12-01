@@ -25,6 +25,7 @@ set(GZ_COMMON_VER ${gz-common5_VERSION_MAJOR})
 find_package(gz-sim7 REQUIRED)
 set(GZ_SIM_VER ${gz-sim7_VERSION_MAJOR})
 
+find_package(gnuplot-iostream REQUIRED)
 
 # Plugins
 #
@@ -138,14 +139,14 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/FreeSurfaceHydrodynamics
 
 ament_export_targets(export_BuoyECMStateData)
 
-ament_export_targets(export_Interp1d HAS_LIBRARY_TARGET)
-install(TARGETS Interp1d
-  EXPORT export_Interp1d
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION lib
-  INCLUDES DESTINATION include
-)
+# ament_export_targets(export_Interp1d HAS_LIBRARY_TARGET)
+# install(TARGETS Interp1d
+#   EXPORT export_Interp1d
+#   ARCHIVE DESTINATION lib
+#   LIBRARY DESTINATION lib
+#   RUNTIME DESTINATION lib
+#   INCLUDES DESTINATION include
+# )
 
 
 # Resources

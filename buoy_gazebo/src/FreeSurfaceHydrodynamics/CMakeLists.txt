@@ -8,6 +8,7 @@ gz_add_plugin(WaveBodyInteractions
     lib
   EXTRA_ROS_PKGS
     simple_interp
+    gnuplot-iostream
 )
 
 target_link_libraries(WaveBodyInteractions PUBLIC FreeSurfaceHydrodynamics)
