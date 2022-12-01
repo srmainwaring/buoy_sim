@@ -137,25 +137,25 @@ if(BUILD_TESTING)
   ament_python_install_package(testing_utils)
 
   # Add gtests
-  buoy_add_gtest(experiment_comparison ROS LAUNCH_TEST
-    BOOST_COMPONENTS
-      iostreams system filesystem
-    EXTRA_ROS_PKGS
-      buoy_gazebo
-      simple_interp)
+  # buoy_add_gtest(experiment_comparison ROS LAUNCH_TEST
+  #   BOOST_COMPONENTS
+  #     iostreams system filesystem
+  #   EXTRA_ROS_PKGS
+  #     buoy_gazebo
+  #     simple_interp)
 
-  buoy_add_gtest(eh_solver ROS LAUNCH_TEST
-    BOOST_COMPONENTS
-      iostreams system filesystem
-    EXTRA_ROS_PKGS
-      buoy_gazebo)
+  # buoy_add_gtest(eh_solver ROS LAUNCH_TEST
+  #   BOOST_COMPONENTS
+  #     iostreams system filesystem
+  #   EXTRA_ROS_PKGS
+  #     buoy_gazebo)
 
-  buoy_add_gtest(eh_windtarget ROS LAUNCH_TEST
-    BOOST_COMPONENTS
-      iostreams system filesystem
-    EXTRA_ROS_PKGS
-      buoy_gazebo
-      simple_interp)
+  # buoy_add_gtest(eh_windtarget ROS LAUNCH_TEST
+  #   BOOST_COMPONENTS
+  #     iostreams system filesystem
+  #   EXTRA_ROS_PKGS
+  #     buoy_gazebo
+  #     simple_interp)
 
   buoy_add_gtest(eh_solver
     BOOST_COMPONENTS
@@ -164,7 +164,9 @@ if(BUILD_TESTING)
       system
     EXTRA_ROS_PKGS
       buoy_gazebo
-      simple_interp)
+      simple_interp
+      gnuplot-iostream
+      rclcpp)
 
   buoy_add_gtest(eh_windtarget
     BOOST_COMPONENTS
@@ -173,7 +175,9 @@ if(BUILD_TESTING)
       system
     EXTRA_ROS_PKGS
       buoy_gazebo
-      simple_interp)
+      simple_interp
+      gnuplot-iostream
+      rclcpp)
 
   buoy_add_gtest(no_inputs)
   buoy_add_gtest(no_inputs_ros_feedback ROS LAUNCH_TEST)
